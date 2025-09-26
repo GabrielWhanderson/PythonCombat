@@ -2,7 +2,8 @@
                  - elif chain no escolher_dificuldade reformulada em match case
                  - corrigido bug ao esolher cajado várias vezes em sequência (buff acumulado)
                  - alteração no display de alguns textos (\n)
-                 - ValueError expection na lista de minigames"""
+                 - ValueError expection na lista de minigames
+                 - parâmetros explicados em cada função"""
 #Definições base-----------
 import random
 jogadores = {}
@@ -11,7 +12,7 @@ escolhaArma = 0
 
 #funções--------------------
 def escolher_dificuldade(num_jog: int) -> tuple[int, str, int]: #define o nível de dificuldade do boss
-
+    #num_jog -> número de jogadores
     while True:
         try:
             dif = int(input("\nESCOLHA UMA DIFICULDADE:\n1 - FÁCIL\n2 - NORMAL\n3 - DÍFICIL\n4 - INSANO (3 turnos)\n"))
@@ -30,11 +31,12 @@ def escolher_dificuldade(num_jog: int) -> tuple[int, str, int]: #define o nível
             print("Dificuldade inválida! Por favor, digite um número.")
 
 
-def armas_lista(x: int) -> int: #Cada jogador escolhe sua arma (sem descrição)
+def armas_lista(k) -> int: #Cada jogador escolhe sua arma (sem descrição)
+    #k -> número do jogador
     global buff_suporte, escolhaArma
     while True:
         try:
-            ler_descricoes = int(input(f'\nJOGADOR {x + 1}, ESCOLHA UMA ARMA:'
+            ler_descricoes = int(input(f'\nJOGADOR {k+1}, ESCOLHA UMA ARMA:'
                                       f'\n0 - ABRIR DESCRIÇÕES          3 - ARCO E FLECHA'
                                       f'\n1 - ESPADA                    4 - LIVRO ENCANTADO'
                                       f'\n2 - MACHADO                   5 - CAJADO'
@@ -45,24 +47,24 @@ def armas_lista(x: int) -> int: #Cada jogador escolhe sua arma (sem descrição)
                     buff_suporte += 1
                 break
             elif ler_descricoes == 0:
-                descricaolista(x)
+                descricaolista(k)
                 break
             else:
                 print("\nArma inexistente! Por favor, escolha um número entre 1 e 5.")
                 continue
         except ValueError:
             print("Entrada inválida. Por favor, Insira um número.")
-    jogadores[f"JOGADOR {x + 1}"] = escolhaArma
+    jogadores[f"JOGADOR {k+1}"] = escolhaArma
     return escolhaArma
 
 
-def descricaolista(x: int) -> int: #abre a lista de descrições das armas
+def descricaolista(k) -> int: #abre a lista de descrições das armas
     global escolhaArma
     while True:
         try:
-            escolhaArma = int(input(f'\n\nJOGADOR {x + 1}, ESCOLHA UMA ARMA:'
+            escolhaArma = int(input(f'\n\nJOGADOR {k+1}, ESCOLHA UMA ARMA:'
                                 f'\n1 - ESPADA: Adiciona +2 de dano ao lançamento.'
-                                f'\n2 - MACHADO: Caso o lançamento seja alta, dá 7 de dano. Caso contrário, dá 1 de dano.'
+                                f'\n2 - MACHADO: Caso o lançamento seja alto, dá 7 de dano. Caso contrário, dá 1 de dano.'
                                 f'\n3 - ARCO E FLECHA: A cada 2 turnos, dá o dobro de dano.'
                                 f'\n4 - LIVRO ENCANTADO: se enfraquece em -1 de dano, mas aumenta +1 aos seus aliados.'
                                 f'\n5 - CAJADO: Tem maior chance de acertos críticos.'
@@ -78,6 +80,8 @@ def descricaolista(x: int) -> int: #abre a lista de descrições das armas
 
 
 def rolagem_dados(k, v: int, a: int) -> tuple[int, int, int]: #Sistema completo do cálculo de dano
+    #v -> arma do jogador
+    #a -> número do turno
     acerto = 1
 
     def rolar_dado() -> int: #Decide o valor do lançamento
@@ -98,6 +102,8 @@ def rolagem_dados(k, v: int, a: int) -> tuple[int, int, int]: #Sistema completo 
         return dado
 
     def calculo_armas(dado: int, acerto: int) -> tuple[int, int]: #Calcula as fórmulas de dano de cada arma
+        #dado -> valor da rolagem usado no cálculo de dano
+        #acerto -> chance de acerto crítico bem sucedido
         dano = 0
         match v:
             case 1: #Adiciona +2 de dano ao lançamento (ESPADA)
@@ -116,6 +122,7 @@ def rolagem_dados(k, v: int, a: int) -> tuple[int, int, int]: #Sistema completo 
         return dano + buff_suporte, acerto
 
     def chance_critico(dano: int, acerto: int) -> tuple[int, int]: #Calcula a chance de acerto crítico
+        #dano -> valor final do cálculo de dano
         critico = random.randint(1, 14)
         if critico <= acerto:
             dano += 1
@@ -168,12 +175,12 @@ def boss_battle() -> None: #Primeiro minigame
     while True:
         vida_boss, nome_dif, turnos = escolher_dificuldade(num_jog)
 #Escolha de armas-----------------
-        for x in range(0, num_jog, 1):
-            armas_lista(x)
+        for k in range(0, num_jog, 1):
+            armas_lista(k)
         print(f"\nDificuldade: [{nome_dif}] - Vida do boss: {vida_boss}HP")
 #Sistema de turnos----------------
         for a in range(0, turnos, 1):
-            print(f"\n\n\nTURNO {a + 1}", escolhaArma)
+            print(f"\n\n\nTURNO {a + 1}")
             for k, v in jogadores.items():
                 critico, dano, acerto = rolagem_dados(k, v, a)
 
@@ -194,10 +201,9 @@ def boss_battle() -> None: #Primeiro minigame
 
 
 def battle_royale() -> None: #Segundo minigame
-    jogadores.clear()
 #Escolha de armas-----------------
-    for x in range(0, num_jog, 1):
-        armas_lista(x)
+    for k in range(0, num_jog, 1):
+        armas_lista(k)
 #Sistema de turnos----------------
     turnos = 1
     while len(jogadores) > 1:
@@ -224,7 +230,8 @@ def battle_royale() -> None: #Segundo minigame
         else:
             print(f"JOGADOR ELIMINADO: {eliminado}")
             del jogadores[eliminado]
-    print(f"\n\n{k}, VOCÊ É O VENCEDOR!!!\n")
+    vencedor = list(jogadores.keys())[0]
+    print(f"\n\n{vencedor}, VOCÊ É O VENCEDOR!!!\n")
 
 
 #Início----------------
@@ -233,6 +240,7 @@ print('-------------RPG Game-------------')
 try:
     dado_virt, num_jog = inicio()
     while True:
+        jogadores.clear()
         buff_suporte = 0
         gamemode = int(input("\nMODOS DE JOGO:\n1 - Batalha de Chefão\n2 - Battle Royale\n"))
         match gamemode:
